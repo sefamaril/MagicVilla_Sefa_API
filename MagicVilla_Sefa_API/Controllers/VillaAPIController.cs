@@ -1,4 +1,5 @@
 ﻿using MagicVilla_Sefa_API.Data;
+using MagicVilla_Sefa_API.Logging;
 using MagicVilla_Sefa_API.Models.Dto;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,10 +15,20 @@ namespace MagicVilla_Sefa_API.Controllers
 
     public class VillaAPIController : ControllerBase
     {
+        private readonly ILogging _logger;
+
+
+        public VillaAPIController(ILogging logger)
+        {
+            _logger = logger;
+        }
+
+        
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<VillaDto>> GetVillas()
         {
+            _logger.Log("Getting all villas","");
             return Ok(VillaStore.villaList);
         }
         [HttpGet("{id:int}")]
@@ -27,7 +38,11 @@ namespace MagicVilla_Sefa_API.Controllers
         public ActionResult<VillaDto> GetVilla(int id)
         {
             if (id == 0)
+            {
+               _logger.Log("Get Villa Error with Id " + id,"error");
                 return BadRequest();
+            }
+               
             var villa = VillaStore.villaList.FirstOrDefault(x => x.Id == id);
             if (villa == null)
                 return NotFound();
